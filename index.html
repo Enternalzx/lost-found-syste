@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园失物招领管理系统</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="navbar">
+        <div class="nav-decor"></div>
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">◆</span>
+                校园失物招领系统
+            </div>
+            <div class="nav-menu">
+                <button class="nav-btn active">
+                    <span class="nav-icon">▣</span> 首页大厅
+                </button>
+                <button class="nav-btn publish-btn" onclick="openPublishModal()">
+                    <span class="nav-icon">+</span> 发布信息
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 左右分栏布局 -->
+    <main class="main-wrapper">
+        <!-- 左侧侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <h4 class="sidebar-title">数据概览</h4>
+                <div class="stat-item">
+                    <div class="stat-num gold" id="totalStat">0</div>
+                    <div class="stat-label">信息总数</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-row">
+                    <div class="stat-col">
+                        <div class="stat-num blue" id="lostStat">0</div>
+                        <div class="stat-label">寻物启事</div>
+                    </div>
+                    <div class="stat-col">
+                        <div class="stat-num purple" id="foundStat">0</div>
+                        <div class="stat-label">失物招领</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-card">
+                <h4 class="sidebar-title">快捷分类</h4>
+                <div class="cate-list">
+                    <div class="cate-item active" data-type="all" onclick="filterByCate('all')">
+                        <span class="cate-dot"></span> 全部信息
+                    </div>
+                    <div class="cate-item" data-type="lost" onclick="filterByCate('lost')">
+                        <span class="cate-dot blue"></span> 寻物启事
+                    </div>
+                    <div class="cate-item" data-type="found" onclick="filterByCate('found')">
+                        <span class="cate-dot purple"></span> 失物招领
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-card tip-card">
+                <p class="tip-text">💡 温馨提示</p>
+                <p class="tip-desc">请如实填写信息，及时删除已完成的招领信息，共同维护良好的校园环境。</p>
+            </div>
+        </aside>
+
+        <!-- 右侧主内容 -->
+        <section class="content-area">
+            <!-- 标题横幅 -->
+            <div class="hero-banner">
+                <div class="hero-text">
+                    <h1>校园失物招领管理平台</h1>
+                    <p>便捷发布 · 快速检索 · 助力每一件物品失而复得</p>
+                </div>
+                <div class="hero-decor">
+                    <div class="decor-ring ring1"></div>
+                    <div class="decor-ring ring2"></div>
+                </div>
+            </div>
+
+            <!-- 搜索工具栏 -->
+            <div class="tool-bar">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" class="search-input" placeholder="搜索物品名称 / 丢失地点..." oninput="renderList()">
+                </div>
+                <div class="tool-right">
+                    <select id="typeFilter" class="filter-select" onchange="renderList(); syncCateActive()">
+                        <option value="all">全部信息</option>
+                        <option value="lost">寻物启事</option>
+                        <option value="found">失物招领</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 分割装饰线 -->
+            <div class="section-divider">
+                <span class="divider-text">信息列表</span>
+            </div>
+
+            <!-- 卡片列表 -->
+            <div id="cardList" class="card-grid"></div>
+
+            <!-- 空数据提示 -->
+            <div id="emptyTip" class="empty-tip" style="display: none;">
+                <div class="empty-icon">📭</div>
+                <p>暂无匹配的信息</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- 详情弹窗 -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h3>信息详情</h3>
+                <span class="close-btn" onclick="closeDetailModal()">✕</span>
+            </div>
+            <div class="modal-body">
+                <div class="detail-row">
+                    <span class="detail-label">信息类型</span>
+                    <span id="detailType" class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">物品名称</span>
+                    <span id="detailName" class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">所在地点</span>
+                    <span id="detailLocation" class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">发布时间</span>
+                    <span id="detailTime" class="detail-value"></span>
+                </div>
+                <div class="detail-block">
+                    <span class="detail-label">详细描述</span>
+                    <div class="desc-box" id="detailDesc"></div>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">联系方式</span>
+                    <span id="detailPhone" class="detail-value phone"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-gold" onclick="closeDetailModal()">关闭详情</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 发布弹窗 -->
+    <div id="publishModal" class="modal">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h3>发布失物招领信息</h3>
+                <span class="close-btn" onclick="closePublishModal()">✕</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>信息类型</label>
+                    <select id="pubType" class="form-input">
+                        <option value="lost">寻物启事</option>
+                        <option value="found">失物招领</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>物品名称</label>
+                        <input type="text" id="pubName" class="form-input" placeholder="例如：黑色保温杯">
+                    </div>
+                    <div class="form-group half">
+                        <label>联系电话</label>
+                        <input type="text" id="pubPhone" class="form-input" placeholder="请输入联系方式">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>丢失 / 捡拾地点</label>
+                    <input type="text" id="pubLocation" class="form-input" placeholder="例如：第一教学楼302教室">
+                </div>
+                <div class="form-group">
+                    <label>详细描述</label>
+                    <textarea id="pubDesc" class="form-input form-textarea" rows="4" placeholder="请详细描述物品特征、包装、丢失时间等信息"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closePublishModal()">取消</button>
+                <button class="btn btn-gold" onclick="submitPublish()">确认发布</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-line"></div>
+        <p>校园失物招领管理系统 · 毕业设计 · 朱家鑫</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // 侧边栏分类联动
+        function filterByCate(type) {
+            document.getElementById('typeFilter').value = type;
+            document.querySelectorAll('.cate-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.cate-item[data-type="${type}"]`).classList.add('active');
+            renderList();
+        }
+
+        function syncCateActive() {
+            const type = document.getElementById('typeFilter').value;
+            document.querySelectorAll('.cate-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.cate-item[data-type="${type}"]`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
